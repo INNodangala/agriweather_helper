@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Weather - {{ city }} - AgriWeather Helper{% endblock %}
+
+{% block content %}
+<div class="weather-page">
+    <div class="page-header">
+        <h1><i class="fas fa-cloud-sun"></i> Weather for {{ weather.city }}, {{ weather.country }}</h1>
+        <p>Last updated: {{ weather.timestamp }}</p>
+    </div>
+
+    <div class="weather-grid">
+        <!-- Current Weather -->
+        <div class="card current-weather">
+            <div class="weather-main">
+                <img src="https://openweathermap.org/img/wn/{{ weather.icon }}@4x.png" alt="{{ weather.description }}">
+                <div class="weather-temp">
+                    <span class="temp-value">{{ weather.temperature }}°C</span>
+                    <span class="temp-desc">{{ weather.description }}</span>
+                </div>
+            </div>
+            <div class="weather-details">
+                <div class="detail">
+                    <i class="fas fa-temperature-half"></i>
+                    <span>Feels like: {{ weather.feels_like }}°C</span>
+                </div>
+                <div class="detail">
+                    <i class="fas fa-droplet"></i>
+                    <span>Humidity: {{ weather.humidity }}%</span>
+                </div>
+                <div class="detail">
+                    <i class="fas fa-wind"></i>
+                    <span>Wind: {{ weather.wind_speed }} km/h</span>
+                </div>
+                <div class="detail">
+                    <i class="fas fa-gauge-high"></i>
+                    <span>Pressure: {{ weather.pressure }} hPa</span>
+                </div>
+                <div class="detail">
+                    <i class="fas fa-eye"></i>
+                    <span>Visibility: {{ weather.visibility }} km</span>
+                </div>
+                <div class="detail">
+                    <i class="fas fa-cloud"></i>
+                    <span>Clouds: {{ weather.clouds }}%</span>
+                </div>
+                <div class="detail">
+                    <i class="fas fa-sun"></i>
+                    <span>Sunrise: {{ weather.sunrise }}</span>
+                </div>
+                <div class="detail">
+                    <i class="fas fa-moon"></i>
+                    <span>Sunset: {{ weather.sunset }}</span>
+                </div>
+            </div>
+            {% if weather.get('mock') %}
+            <div class="mock-notice">
+                <i class="fas fa-info-circle"></i> Demo data - Add API key for real weather
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Farming Alerts -->
+        <div class="card alerts-card">
+            <h2><i class="fas fa-exclamation-triangle"></i> Farming Alerts</h2>
+            {% if alerts %}
+            <div class="alerts-list">
+                {% for alert in alerts %}
+                <div class="alert alert-{{ alert.type }}">
+                    <i class="fas fa-{{ alert.icon }}"></i>
+                    <div>
+                        <strong>{{ alert.title }}</strong>
+                        <p>{{ alert.message }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="no-alerts"><i class="fas fa-check-circle"></i> No alerts - conditions look good!</p>
+            {% endif %}
+        </div>
+
+        <!-- Irrigation Recommendation -->
+        <div class="card irrigation-card">
+            <h2><i class="fas fa-tint"></i> Irrigation Advice</h2>
+            <div class="irrigation-rec urgency-{{ irrigation_rec.urgency }}">
+                <i class="fas fa-{{ irrigation_rec.icon }}"></i>
+                <div>
+                    <strong>{{ irrigation_rec.recommendation }}</strong>
+                    <p>{{ irrigation_rec.details }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5-Day Forecast -->
+        {% if forecast and forecast.forecasts %}
+        <div class="card forecast-card">
+            <h2><i class="fas fa-calendar-week"></i> 5-Day Forecast</h2>
+            <div class="forecast-grid">
+                {% for day in forecast.forecasts %}
+                <div class="forecast-day">
+                    <span class="day-name">{{ day.day_name[:3] }}</span>
+                    <img src="https://openweathermap.org/img/wn/{{ day.icon }}.png" alt="{{ day.description }}">
+                    <span class="temp-range">{{ day.temp_min }}° - {{ day.temp_max }}°</span>
+                    <span class="rain-chance">
+                        <i class="fas fa-droplet"></i> {{ day.rain_chance }}%
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Change City -->
+    <div class="card change-city">
+        <h2><i class="fas fa-map-marker-alt"></i> Change Location</h2>
+        <form action="{{ url_for('weather') }}" method="POST" class="city-form">
+            <select name="city" required>
+                {% for city_option in cities %}
+                <option value="{{ city_option }}" {% if city_option == city %}selected{% endif %}>
+                    {{ city_option }}
+                </option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-search"></i> Update
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

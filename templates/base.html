@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AgriWeather Helper{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="{{ url_for('index') }}">
+                <i class="fas fa-cloud-sun"></i> AgriWeather
+            </a>
+        </div>
+        <div class="nav-links">
+            <a href="{{ url_for('index') }}" class="{% if request.endpoint == 'index' %}active{% endif %}">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="{{ url_for('crops') }}" class="{% if request.endpoint == 'crops' %}active{% endif %}">
+                <i class="fas fa-seedling"></i> Crops
+            </a>
+            <a href="{{ url_for('planting') }}" class="{% if request.endpoint == 'planting' %}active{% endif %}">
+                <i class="fas fa-calendar-alt"></i> Planting
+            </a>
+            <a href="{{ url_for('irrigation') }}" class="{% if request.endpoint == 'irrigation' %}active{% endif %}">
+                <i class="fas fa-tint"></i> Irrigation
+            </a>
+            <a href="{{ url_for('recommendations') }}" class="{% if request.endpoint == 'recommendations' %}active{% endif %}">
+                <i class="fas fa-lightbulb"></i> Recommend
+            </a>
+        </div>
+    </nav>
+
+    <main class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">
+                {{ message }}
+                <button class="flash-close">&times;</button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 AgriWeather Helper - Your Farming Companion</p>
+            <p class="disclaimer">
+                <i class="fas fa-info-circle"></i>
+                Weather data is for guidance only. Always check local conditions.
+            </p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

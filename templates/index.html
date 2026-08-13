@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}AgriWeather Helper - Home{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <div class="hero-content">
+        <h1><i class="fas fa-cloud-sun"></i> AgriWeather Helper</h1>
+        <p class="hero-subtitle">Your smart farming companion for South Africa</p>
+        
+        <form action="{{ url_for('weather') }}" method="POST" class="weather-search">
+            <div class="search-group">
+                <select name="city" required>
+                    <option value="">Select your city</option>
+                    {% for city in cities %}
+                    <option value="{{ city }}">{{ city }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Get Weather
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<section class="features">
+    <h2>What We Offer</h2>
+    <div class="feature-grid">
+        <a href="{{ url_for('weather') }}" class="feature-card">
+            <i class="fas fa-cloud-sun-rain"></i>
+            <h3>Weather Forecasts</h3>
+            <p>Get current weather and 5-day forecasts for your area</p>
+        </a>
+        
+        <a href="{{ url_for('crops') }}" class="feature-card">
+            <i class="fas fa-seedling"></i>
+            <h3>Crop Guide</h3>
+            <p>Information on major South African crops and growing tips</p>
+        </a>
+        
+        <a href="{{ url_for('planting') }}" class="feature-card">
+            <i class="fas fa-calendar-alt"></i>
+            <h3>Planting Calendar</h3>
+            <p>Know what to plant and when for your region</p>
+        </a>
+        
+        <a href="{{ url_for('irrigation') }}" class="feature-card">
+            <i class="fas fa-tint"></i>
+            <h3>Irrigation Guide</h3>
+            <p>Smart irrigation scheduling and water management</p>
+        </a>
+    </div>
+</section>
+
+<section class="quick-tips">
+    <h2><i class="fas fa-lightbulb"></i> Today's Farming Tips</h2>
+    <div class="tips-grid">
+        <div class="tip-card">
+            <i class="fas fa-sun"></i>
+            <h4>Check Soil Moisture</h4>
+            <p>Before irrigating, check if soil is moist 10cm below surface</p>
+        </div>
+        <div class="tip-card">
+            <i class="fas fa-cloud-rain"></i>
+            <h4>Rain Coming?</h4>
+            <p>Check forecast before spraying - rain can wash away chemicals</p>
+        </div>
+        <div class="tip-card">
+            <i class="fas fa-temperature-high"></i>
+            <h4>Heat Stress</h4>
+            <p>Water crops early morning during hot weather to reduce stress</p>
+        </div>
+    </div>
+</section>
+
+<section class="about">
+    <div class="about-content">
+        <h2>About AgriWeather Helper</h2>
+        <p>AgriWeather Helper is designed for South African farmers to make informed decisions about planting, irrigation, and crop management based on local weather conditions.</p>
+        <div class="about-features">
+            <span><i class="fas fa-check"></i> SA Weather Data</span>
+            <span><i class="fas fa-check"></i> Crop Recommendations</span>
+            <span><i class="fas fa-check"></i> Irrigation Planning</span>
+            <span><i class="fas fa-check"></i> Planting Schedules</span>
+        </div>
+    </div>
+</section>
+{% endblock %}

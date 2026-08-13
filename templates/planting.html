@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Planting Calendar - AgriWeather Helper{% endblock %}
+
+{% block content %}
+<div class="planting-page">
+    <div class="page-header">
+        <h1><i class="fas fa-calendar-alt"></i> Planting Calendar</h1>
+        <p>Know what to plant and when for South African conditions</p>
+    </div>
+
+    <!-- Current Season -->
+    <div class="season-banner current-season">
+        <i class="fas fa-leaf"></i>
+        <div>
+            <strong>Current Season: {{ seasonal.season }}</strong>
+            <p>{{ seasonal.crops|length }} crops suitable for planting now</p>
+        </div>
+    </div>
+
+    <!-- What to Plant Now -->
+    {% if seasonal.crops %}
+    <div class="card">
+        <h2><i class="fas fa-seedling"></i> What to Plant Now</h2>
+        <div class="crop-cards">
+            {% for crop in seasonal.crops %}
+            <a href="{{ url_for('crop_detail', crop_name=crop.name) }}" class="crop-card highlight">
+                <span class="crop-emoji">{{ crop.emoji }}</span>
+                <h3>{{ crop.name }}</h3>
+                <span class="crop-harvest">Harvest: {{ crop.harvest_time }}</span>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Planting Calendar by Season -->
+    <div class="card">
+        <h2><i class="fas fa-calendar"></i> Full Planting Calendar</h2>
+        
+        {% for season, crops_list in calendar.items() %}
+        <div class="season-section">
+            <h3 class="season-title">{{ season }}</h3>
+            <div class="crop-list">
+                {% for crop in crops_list %}
+                <div class="crop-item">
+                    <span class="crop-emoji">{{ crop.emoji }}</span>
+                    <span class="crop-name">{{ crop.name }}</span>
+                    <span class="crop-harvest">Harvest: {{ crop.harvest }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Planting Tips -->
+    <div class="card">
+        <h2><i class="fas fa-lightbulb"></i> Planting Tips</h2>
+        <div class="tips-grid">
+            <div class="tip-card">
+                <i class="fas fa-temperature-half"></i>
+                <h4>Check Soil Temperature</h4>
+                <p>Ensure soil is warm enough before planting - most crops need 15°C+</p>
+            </div>
+            <div class="tip-card">
+                <i class="fas fa-cloud-rain"></i>
+                <h4>Check Rainfall</h4>
+                <p>Plant before expected rain for natural irrigation</p>
+            </div>
+            <div class="tip-card">
+                <i class="fas fa-sun"></i>
+                <h4>Sunlight Hours</h4>
+                <p>Most crops need 6-8 hours of direct sunlight daily</p>
+            </div>
+            <div class="tip-card">
+                <i class="fas fa-mountain"></i>
+                <h4>Soil Preparation</h4>
+                <p>Prepare soil with compost and ensure good drainage</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

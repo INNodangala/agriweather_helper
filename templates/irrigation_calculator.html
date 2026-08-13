@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}Irrigation Calculator - AgriWeather Helper{% endblock %}
+
+{% block content %}
+<div class="calculator-page">
+    <div class="page-header">
+        <a href="{{ url_for('irrigation') }}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Irrigation
+        </a>
+        <h1><i class="fas fa-calculator"></i> Irrigation Results</h1>
+    </div>
+
+    <div class="results-grid">
+        <!-- Water Need -->
+        <div class="card result-card">
+            <h2><i class="fas fa-tint"></i> Water Requirement</h2>
+            <div class="result-main">
+                <span class="result-value">{{ water_need.daily_mm }}</span>
+                <span class="result-unit">mm/day</span>
+            </div>
+            <div class="result-details">
+                <div class="detail">
+                    <label>Daily ({{ water_need.area_hectares }} ha)</label>
+                    <span>{{ "{:,.0f}".format(water_need.total_daily_liters) }} liters</span>
+                </div>
+                <div class="detail">
+                    <label>Weekly</label>
+                    <span>{{ "{:,.0f}".format(water_need.total_weekly_liters) }} liters</span>
+                </div>
+                <div class="detail">
+                    <label>Crop Coefficient</label>
+                    <span>{{ water_need.crop_coefficient }}</span>
+                </div>
+                <div class="detail">
+                    <label>ET Rate ({{ water_need.month }})</label>
+                    <span>{{ water_need.et_rate }} mm/day</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Schedule -->
+        <div class="card result-card">
+            <h2><i class="fas fa-calendar-alt"></i> Irrigation Schedule</h2>
+            <div class="result-main">
+                <span class="result-value">{{ schedule.interval_days }}</span>
+                <span class="result-unit">days between irrigation</span>
+            </div>
+            <div class="result-details">
+                <div class="detail">
+                    <label>Amount per irrigation</label>
+                    <span>{{ schedule.amount_mm }}mm ({{ "{:,.0f}".format(schedule.amount_liters_per_ha) }} L/ha)</span>
+                </div>
+                <div class="detail">
+                    <label>Best time</label>
+                    <span>{{ schedule.best_time }}</span>
+                </div>
+                <div class="detail">
+                    <label>Soil type</label>
+                    <span>{{ schedule.soil_type }}</span>
+                </div>
+            </div>
+            <div class="schedule-tips">
+                <h3>Tips</h3>
+                <ul>
+                    {% for tip in schedule.tips %}
+                    <li><i class="fas fa-check"></i> {{ tip }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Cost Estimate -->
+        <div class="card result-card">
+            <h2><i class="fas fa-rand-sign"></i> Cost Estimate</h2>
+            <div class="result-main">
+                <span class="result-value">R{{ cost.total_cost }}</span>
+                <span class="result-unit">per day</span>
+            </div>
+            <div class="result-details">
+                <div class="detail">
+                    <label>Water cost</label>
+                    <span>R{{ cost.water_cost }}</span>
+                </div>
+                <div class="detail">
+                    <label>Energy (pumping)</label>
+                    <span>R{{ cost.energy_cost }}</span>
+                </div>
+                <div class="detail">
+                    <label>Efficiency</label>
+                    <span>{{ cost.efficiency }}</span>
+                </div>
+                <div class="detail">
+                    <label>Weekly estimate</label>
+                    <span>R{{ "{:,.2f}".format(cost.total_cost * 7) }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Soil Guide -->
+        <div class="card result-card">
+            <h2><i class="fas fa-mountain"></i> Soil Moisture Guide</h2>
+            <div class="soil-guide">
+                <h3>{{ soil_guide.soil_type }} Soil</h3>
+                <div class="guide-details">
+                    <div class="detail">
+                        <label>Water Holding</label>
+                        <span>{{ soil_guide.water_holding }}</span>
+                    </div>
+                    <div class="detail">
+                        <label>Drainage</label>
+                        <span>{{ soil_guide.drainage }}</span>
+                    </div>
+                    <div class="detail">
+                        <label>Irrigation Frequency</label>
+                        <span>{{ soil_guide.irrigation_frequency }}</span>
+                    </div>
+                </div>
+                <ul class="guide-tips">
+                    {% for guideline in soil_guide.guidelines %}
+                    <li>{{ guideline }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recalculate -->
+    <div class="card recalculate-card">
+        <h2><i class="fas fa-redo"></i> Recalculate</h2>
+        <form action="{{ url_for('irrigation_calculator') }}" method="POST" class="calc-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Crop</label>
+                    <select name="crop" required>
+                        {% for name in crops %}
+                        <option value="{{ name }}" {% if name == selected_crop %}selected{% endif %}>
+                            {{ crops[name].emoji }} {{ name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Area (ha)</label>
+                    <input type="number" name="area" value="{{ selected_area }}" min="0.1" step="0.1" required>
+                </div>
+                <div class="form-group">
+                    <label>Soil</label>
+                    <select name="soil_type" required>
+                        {% for key, soil in soil_types.items() %}
+                        <option value="{{ key }}" {% if key == selected_soil %}selected{% endif %}>
+                            {{ soil.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Method</label>
+                    <select name="method" required>
+                        {% for key, method in methods.items() %}
+                        <option value="{{ key }}" {% if key == selected_method %}selected{% endif %}>
+                            {{ method.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-calculator"></i> Calculate
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

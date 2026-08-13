@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}{{ crop_name }} - Crop Guide - AgriWeather Helper{% endblock %}
+
+{% block content %}
+<div class="crop-detail-page">
+    <div class="page-header">
+        <a href="{{ url_for('crops') }}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Crops
+        </a>
+        <h1>{{ crop.emoji }} {{ crop_name }}</h1>
+        <span class="crop-category-badge">{{ crop.category }}</span>
+    </div>
+
+    <div class="crop-grid">
+        <div class="card main-card">
+            <div class="card-body">
+                <p class="crop-description">{{ crop.description }}</p>
+                
+                <div class="crop-stats">
+                    <div class="stat">
+                        <i class="fas fa-calendar-alt"></i>
+                        <div>
+                            <label>Planting Season</label>
+                            <span>{{ crop.planting_season }}</span>
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-clock"></i>
+                        <div>
+                            <label>Harvest Time</label>
+                            <span>{{ crop.harvest_time }}</span>
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-temperature-half"></i>
+                        <div>
+                            <label>Optimal Temp</label>
+                            <span>{{ crop.optimal_temp }}°C</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-info-circle"></i> Growing Conditions</h2>
+            </div>
+            <div class="card-body">
+                <div class="condition-list">
+                    <div class="condition">
+                        <i class="fas fa-temperature-half"></i>
+                        <span><strong>Temperature:</strong> {{ crop.temp_range[0] }}°C - {{ crop.temp_range[1] }}°C</span>
+                    </div>
+                    <div class="condition">
+                        <i class="fas fa-droplet"></i>
+                        <span><strong>Water Needs:</strong> {{ crop.water_needs.title() }}</span>
+                    </div>
+                    <div class="condition">
+                        <i class="fas fa-mountain"></i>
+                        <span><strong>Soil Type:</strong> {{ crop.soil_type }}</span>
+                    </div>
+                    <div class="condition">
+                        <i class="fas fa-sun"></i>
+                        <span><strong>Sunlight:</strong> {{ crop.sunlight }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-droplet"></i> Water Information</h2>
+            </div>
+            <div class="card-body">
+                <div class="water-info">
+                    <span class="water-level water-{{ crop.water_needs }}">
+                        <i class="fas fa-tint"></i> {{ water_info.label }} Water Needs
+                    </span>
+                    <p>{{ water_info.description }}</p>
+                    <p><strong>Frequency:</strong> {{ water_info.frequency }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-lightbulb"></i> Growing Tips</h2>
+            </div>
+            <div class="card-body">
+                <ul class="tips-list">
+                    {% for tip in crop.tips %}
+                    <li><i class="fas fa-check"></i> {{ tip }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        {% if crop.provinces %}
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-map-marker-alt"></i> Main Growing Provinces</h2>
+            </div>
+            <div class="card-body">
+                <div class="province-tags">
+                    {% for province in crop.provinces %}
+                    <span class="province-tag">{{ province }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

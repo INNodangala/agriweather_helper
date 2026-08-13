@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Irrigation Guide - AgriWeather Helper{% endblock %}
+
+{% block content %}
+<div class="irrigation-page">
+    <div class="page-header">
+        <h1><i class="fas fa-tint"></i> Irrigation Guide</h1>
+        <p>Smart water management for your farm</p>
+    </div>
+
+    <div class="irrigation-grid">
+        <!-- Irrigation Calculator -->
+        <div class="card calculator-card">
+            <h2><i class="fas fa-calculator"></i> Irrigation Calculator</h2>
+            <form action="{{ url_for('irrigation_calculator') }}" method="POST" class="calc-form">
+                <div class="form-group">
+                    <label for="crop">Select Crop</label>
+                    <select name="crop" id="crop" required>
+                        {% for name in crops %}
+                        <option value="{{ name }}">{{ crops[name].emoji }} {{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="area">Area (hectares)</label>
+                    <input type="number" name="area" id="area" value="1" min="0.1" step="0.1" required>
+                </div>
+                <div class="form-group">
+                    <label for="soil_type">Soil Type</label>
+                    <select name="soil_type" id="soil_type" required>
+                        {% for key, soil in soil_types.items() %}
+                        <option value="{{ key }}">{{ soil.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="method">Irrigation Method</label>
+                    <select name="method" id="method" required>
+                        {% for key, method in methods.items() %}
+                        <option value="{{ key }}">{{ method.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-calculator"></i> Calculate
+                </button>
+            </form>
+        </div>
+
+        <!-- Irrigation Methods -->
+        <div class="card">
+            <h2><i class="fas fa-water"></i> Irrigation Methods</h2>
+            <div class="methods-list">
+                {% for method in methods %}
+                <div class="method-item">
+                    <div class="method-header">
+                        <h3>{{ method.name }}</h3>
+                        <span class="efficiency-badge">{{ method.efficiency }}% efficient</span>
+                    </div>
+                    <p>{{ method.description }}</p>
+                    <div class="method-best">
+                        <strong>Best for:</strong> {{ method.best_for|join(', ') }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Soil Types -->
+        <div class="card">
+            <h2><i class="fas fa-mountain"></i> Soil Types</h2>
+            <div class="soil-list">
+                {% for key, soil in soil_types.items() %}
+                <div class="soil-item">
+                    <h3>{{ soil.name }}</h3>
+                    <div class="soil-details">
+                        <span><strong>Capacity:</strong> {{ soil.capacity }}</span>
+                        <span><strong>Drainage:</strong> {{ soil.drainage }}</span>
+                        <span><strong>Irrigation:</strong> {{ soil.irrigation_freq }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Drought Tips -->
+        <div class="card">
+            <h2><i class="fas fa-exclamation-triangle"></i> Water Conservation Tips</h2>
+            <ul class="tips-list">
+                {% for tip in drought_tips %}
+                <li><i class="fas fa-check"></i> {{ tip }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

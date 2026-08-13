@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Crops - AgriWeather Helper{% endblock %}
+
+{% block content %}
+<div class="crops-page">
+    <div class="page-header">
+        <h1><i class="fas fa-seedling"></i> South African Crops</h1>
+        <p>Comprehensive guide to major crops grown in South Africa</p>
+    </div>
+
+    <!-- Seasonal Banner -->
+    <div class="season-banner">
+        <i class="fas fa-calendar-alt"></i>
+        <div>
+            <strong>{{ seasonal.season }} Planting Season</strong>
+            <p>Currently: {{ current_month }}</p>
+        </div>
+    </div>
+
+    <!-- Seasonal Crops -->
+    {% if seasonal.crops %}
+    <div class="card seasonal-card">
+        <h2><i class="fas fa-leaf"></i> What to Plant Now ({{ seasonal.season }})</h2>
+        <div class="crop-cards">
+            {% for crop in seasonal.crops %}
+            <a href="{{ url_for('crop_detail', crop_name=crop.name) }}" class="crop-card">
+                <span class="crop-emoji">{{ crop.emoji }}</span>
+                <h3>{{ crop.name }}</h3>
+                <span class="crop-category">{{ crop.category }}</span>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- All Crops -->
+    <div class="card">
+        <h2><i class="fas fa-list"></i> All Crops</h2>
+        <div class="crop-cards">
+            {% for name, crop in crops.items() %}
+            <a href="{{ url_for('crop_detail', crop_name=name) }}" class="crop-card">
+                <span class="crop-emoji">{{ crop.emoji }}</span>
+                <h3>{{ name }}</h3>
+                <span class="crop-category">{{ crop.category }}</span>
+                <span class="crop-season">{{ crop.planting_season }}</span>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

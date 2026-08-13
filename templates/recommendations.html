@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Crop Recommendations - AgriWeather Helper{% endblock %}
+
+{% block content %}
+<div class="recommendations-page">
+    <div class="page-header">
+        <h1><i class="fas fa-lightbulb"></i> Weather-Based Recommendations</h1>
+        <p>Crops recommended based on current temperature in {{ city }}</p>
+    </div>
+
+    <!-- Current Weather -->
+    <div class="card weather-summary">
+        <div class="weather-info">
+            <img src="https://openweathermap.org/img/wn/{{ weather.icon }}@2x.png" alt="{{ weather.description }}">
+            <div>
+                <span class="temp">{{ weather.temperature }}°C</span>
+                <span class="desc">{{ weather.description }}</span>
+            </div>
+        </div>
+        <p>Based on the current temperature of {{ weather.temperature }}°C, here are suitable crops:</p>
+    </div>
+
+    <!-- Recommendations -->
+    {% if recommendations %}
+    <div class="card">
+        <h2><i class="fas fa-seedling"></i> Recommended Crops</h2>
+        <div class="recommendation-grid">
+            {% for rec in recommendations %}
+            <div class="recommendation-card">
+                <div class="rec-header">
+                    <span class="rec-emoji">{{ rec.emoji }}</span>
+                    <div class="rec-info">
+                        <h3>{{ rec.name }}</h3>
+                        <span class="rec-category">{{ rec.category }}</span>
+                    </div>
+                    <div class="rec-score">
+                        <span class="score-value">{{ rec.suitability }}%</span>
+                        <span class="score-label">Suitable</span>
+                    </div>
+                </div>
+                <div class="rec-details">
+                    <span><i class="fas fa-calendar"></i> {{ rec.planting_season }}</span>
+                    <span><i class="fas fa-droplet"></i> {{ rec.water_needs }} water</span>
+                </div>
+                <div class="score-bar">
+                    <div class="score-fill" style="width: {{ rec.suitability }}%"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="card">
+        <div class="empty-state">
+            <i class="fas fa-cloud"></i>
+            <h3>No Recommendations</h3>
+            <p>Current temperature may not be suitable for the crops in our database.</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Change Location -->
+    <div class="card">
+        <h2><i class="fas fa-map-marker-alt"></i> Check Different Location</h2>
+        <form action="{{ url_for('recommendations') }}" method="GET" class="city-form">
+            <select name="city" required>
+                {% for city_option in ['Cape Town', 'Johannesburg', 'Durban', 'Pretoria', 'Port Elizabeth', 'Bloemfontein'] %}
+                <option value="{{ city_option }}" {% if city_option == city %}selected{% endif %}>
+                    {{ city_option }}
+                </option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-search"></i> Get Recommendations
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
