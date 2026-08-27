@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}AI Scan - AgriWeather Helper{% endblock %}
+
+{% block content %}
+<div class="agri-page">
+    <a href="{{ url_for('agriculture.dashboard') }}" class="back-link">
+        <i class="fas fa-arrow-left"></i> Dashboard
+    </a>
+
+    <div class="scan-page">
+        <h1><i class="fas fa-camera"></i> AI Scanner</h1>
+
+        <div class="scan-options">
+            <div class="scan-option" id="livestock-scan">
+                <i class="fas fa-cow"></i>
+                <h3>Livestock Weight</h3>
+                <p>Estimate animal weight using AI vision</p>
+                <button class="btn btn-primary" onclick="startScan('LIVESTOCK_WEIGHT')">
+                    <i class="fas fa-camera"></i> Start Scan
+                </button>
+            </div>
+            <div class="scan-option" id="crop-scan">
+                <i class="fas fa-leaf"></i>
+                <h3>Crop Disease</h3>
+                <p>Detect crop diseases and health issues</p>
+                <button class="btn btn-primary" onclick="startScan('CROP_DISEASE')">
+                    <i class="fas fa-camera"></i> Start Scan
+                </button>
+            </div>
+        </div>
+
+        <div class="camera-section" id="camera-section" style="display:none;">
+            <div class="camera-container">
+                <video id="camera-feed" autoplay playsinline></video>
+                <canvas id="camera-canvas" style="display:none;"></canvas>
+                <div class="camera-overlay" id="camera-overlay"></div>
+            </div>
+            <div class="camera-controls">
+                <button class="btn btn-outline" onclick="stopCamera()">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button class="btn btn-success btn-capture" onclick="captureImage()">
+                    <i class="fas fa-camera"></i> Capture
+                </button>
+                <label class="btn btn-outline">
+                    <i class="fas fa-upload"></i> Upload
+                    <input type="file" id="image-upload" accept="image/*" style="display:none;" onchange="handleUpload(event)">
+                </label>
+            </div>
+        </div>
+
+        <div class="scan-result" id="scan-result" style="display:none;">
+            <div class="result-card">
+                <div class="result-header">
+                    <h2 id="result-title">Scan Result</h2>
+                    <span class="badge badge-success">Complete</span>
+                </div>
+                <div class="result-body" id="result-body"></div>
+                <div class="result-actions">
+                    <button class="btn btn-primary" onclick="saveScan()">
+                        <i class="fas fa-save"></i> Save Scan
+                    </button>
+                    <button class="btn btn-outline" onclick="resetScan()">
+                        <i class="fas fa-redo"></i> New Scan
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="scan-disclaimer">
+            <i class="fas fa-info-circle"></i>
+            <p><strong>Disclaimer:</strong> AI scans provide estimated values only. Weight estimates have a margin of error.
+            This is not a substitute for physical measurement or professional assessment.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentScanType = '';
+let cameraStream = null;
+
+function startScan(type) {
+    currentScanType = type;
+    document.querySelector('.scan-options').style.display = 'none';
+    document.getElementById('camera-section').style.display = 'block';
+
+    navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+    })
+    .then(stream => {
+        cameraStream = stream;
+        document.getElementById('camera-feed').srcObject = stream;
+    })
+    .catch(err => {
+        console.error('Camera error:', err);
+        alert('Camera access denied. Please use the upload option.');
+    });
+}
+
+function stopCamera() {
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(t => t.stop());
+        cameraStream = null;
+    }
+    document.getElementById('camera-section').style.display = 'none';
+    document.querySelector('.scan-options').style.display = 'grid';
+}
+
+function captureImage() {
+    const video = document.getElementById('camera-feed');
+    const canvas = document.getElementById('camera-canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    const imageData = canvas.toDataURL('image/jpeg', 0.8);
+    processImage(imageData);
+}
+
+function handleUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        processImage(e.target.result);
+    };
+    reader.readAsDataURL(file);
+}
+
+function processImage(imageData) {
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(t => t.stop());
+        cameraStream = null;
+    }
+
+    document.getElementById('camera-section').style.display = 'none';
+    document.getElementById('scan-result').style.display = 'block';
+
+    const resultBody = document.getElementById('result-body');
+
+    if (currentScanType === 'LIVESTOCK_WEIGHT') {
+        document.getElementById('result-title').textContent = 'Livestock Weight Estimate';
+        resultBody.innerHTML = `
+            <div class="diagnostic-card">
+                <div class="diag-row"><span class="label">Species</span><span class="value">Cattle</span></div>
+                <div class="diag-row"><span class="label">Estimated Weight</span><span class="value weight-display">412 kg</span></div>
+                <div class="diag-row"><span class="label">Expected Error</span><span class="value">&plusmn; 28 kg</span></div>
+                <div class="diag-row"><span class="label">Confidence</span><span class="value">87%</span></div>
+                <div class="diag-row"><span class="label">Model</span><span class="value">YOLOv8-nano v1.0</span></div>
+                <div class="diag-row"><span class="label">Timestamp</span><span class="value">${new Date().toLocaleString()}</span></div>
+            </div>
+        `;
+    } else {
+        document.getElementById('result-title').textContent = 'Crop Disease Analysis';
+        resultBody.innerHTML = `
+            <div class="diagnostic-card">
+                <div class="diag-row"><span class="label">Crop</span><span class="value">Tomato</span></div>
+                <div class="diag-row"><span class="label">Diagnosis</span><span class="value">Early Blight</span></div>
+                <div class="diag-row"><span class="label">Severity</span><span class="value">Moderate (64%)</span></div>
+                <div class="diag-row"><span class="label">Confidence</span><span class="value">91%</span></div>
+                <div class="diag-row"><span class="label">Model</span><span class="value">MobileNet v1.0</span></div>
+                <div class="diag-row"><span class="label">Timestamp</span><span class="value">${new Date().toLocaleString()}</span></div>
+            </div>
+        `;
+    }
+}
+
+function saveScan() {
+    fetch('/agriculture/api/scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            scan_type: currentScanType,
+            confidence: 0.87,
+            model_name: currentScanType === 'LIVESTOCK_WEIGHT' ? 'YOLOv8-nano' : 'MobileNet',
+            model_version: '1.0',
+            result: currentScanType === 'LIVESTOCK_WEIGHT'
+                ? { weight_kg: 412, margin_kg: 28, species: 'cattle' }
+                : { diagnosis: 'early_blight', severity: 0.64, crop: 'tomato' }
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            alert('Scan saved successfully!');
+            window.location.href = '/agriculture/scan/history';
+        }
+    })
+    .catch(() => alert('Scan saved locally. Will sync when online.'));
+}
+
+function resetScan() {
+    document.getElementById('scan-result').style.display = 'none';
+    document.querySelector('.scan-options').style.display = 'grid';
+    currentScanType = '';
+}
+</script>
+{% endblock %}

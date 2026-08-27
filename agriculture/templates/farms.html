@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}My Farms - AgriWeather Helper{% endblock %}
+
+{% block content %}
+<div class="agri-page">
+    <div class="page-header">
+        <h1><i class="fas fa-warehouse"></i> My Farms</h1>
+        <a href="{{ url_for('agriculture.farm_new') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> New Farm
+        </a>
+    </div>
+
+    {% if farms %}
+    <div class="farm-cards">
+        {% for farm in farms %}
+        <a href="{{ url_for('agriculture.farm_detail', farm_id=farm.id) }}" class="farm-card">
+            <div class="farm-card-header">
+                <h3>{{ farm.name }}</h3>
+                <span class="farm-size">{{ farm.farm_size or '?' }} {{ farm.farm_size_unit }}</span>
+            </div>
+            <p class="farm-location"><i class="fas fa-map-marker-alt"></i> {{ farm.location or 'No location set' }}</p>
+            <p class="farm-soil"><i class="fas fa-mountain"></i> {{ farm.soil_type or 'Unknown soil' }}</p>
+            <span class="farm-date">Created {{ farm.created_at.strftime('%d %b %Y') }}</span>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="dash-empty">
+        <i class="fas fa-tractor"></i>
+        <h3>No farms yet</h3>
+        <p>Create your first farm to get started.</p>
+        <a href="{{ url_for('agriculture.farm_new') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Create Farm
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

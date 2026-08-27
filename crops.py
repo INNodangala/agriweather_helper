@@ -231,7 +231,8 @@ def get_crops_by_season(season):
 
 def get_current_planting_season():
     """Get current planting season based on date."""
-    month = datetime.now().month
+    from datetime import datetime as _dt
+    month = _dt.now().month
     
     if month in [9, 10, 11]:
         return 'Spring'

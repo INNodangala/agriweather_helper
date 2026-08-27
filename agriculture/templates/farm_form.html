@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Edit' if farm else 'New' }} Farm - AgriWeather Helper{% endblock %}
+
+{% block content %}
+<div class="agri-page">
+    <a href="{{ url_for('agriculture.farms_list') }}" class="back-link">
+        <i class="fas fa-arrow-left"></i> Back to Farms
+    </a>
+
+    <div class="form-card">
+        <h1><i class="fas fa-warehouse"></i> {{ 'Edit' if farm else 'New' }} Farm</h1>
+
+        <form method="POST" class="agri-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="name">Farm Name *</label>
+                    <input type="text" id="name" name="name" required value="{{ farm.name if farm else '' }}" placeholder="e.g. Sunrise Farm">
+                </div>
+                <div class="form-group">
+                    <label for="location">Location</label>
+                    <input type="text" id="location" name="location" value="{{ farm.location if farm else '' }}" placeholder="e.g. Pretoria, Gauteng">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="farm_size">Farm Size</label>
+                    <input type="number" id="farm_size" name="farm_size" step="0.1" value="{{ farm.farm_size if farm and farm.farm_size else '' }}" placeholder="e.g. 10">
+                </div>
+                <div class="form-group">
+                    <label for="farm_size_unit">Unit</label>
+                    <select id="farm_size_unit" name="farm_size_unit">
+                        <option value="hectares" {{ 'selected' if farm and farm.farm_size_unit == 'hectares' }}>Hectares</option>
+                        <option value="acres" {{ 'selected' if farm and farm.farm_size_unit == 'acres' }}>Acres</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="latitude">Latitude</label>
+                    <input type="number" id="latitude" name="latitude" step="0.0001" value="{{ farm.latitude if farm and farm.latitude else '' }}" placeholder="-25.7461">
+                </div>
+                <div class="form-group">
+                    <label for="longitude">Longitude</label>
+                    <input type="number" id="longitude" name="longitude" step="0.0001" value="{{ farm.longitude if farm and farm.longitude else '' }}" placeholder="28.1881">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="soil_type">Soil Type</label>
+                <select id="soil_type" name="soil_type">
+                    <option value="">Select soil type</option>
+                    <option value="sandy" {{ 'selected' if farm and farm.soil_type == 'sandy' }}>Sandy</option>
+                    <option value="loam" {{ 'selected' if farm and farm.soil_type == 'loam' }}>Loam</option>
+                    <option value="clay" {{ 'selected' if farm and farm.soil_type == 'clay' }}>Clay</option>
+                    <option value="silt" {{ 'selected' if farm and farm.soil_type == 'silt' }}>Silt</option>
+                    <option value="sandy-loam" {{ 'selected' if farm and farm.soil_type == 'sandy-loam' }}>Sandy Loam</option>
+                    <option value="clay-loam" {{ 'selected' if farm and farm.soil_type == 'clay-loam' }}>Clay Loam</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> {{ 'Update' if farm else 'Create' }} Farm
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

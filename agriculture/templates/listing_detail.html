@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}{{ listing.title }} - Marketplace{% endblock %}
+
+{% block content %}
+<div class="agri-page">
+    <a href="{{ url_for('agriculture.marketplace') }}" class="back-link">
+        <i class="fas fa-arrow-left"></i> Marketplace
+    </a>
+
+    <div class="listing-detail">
+        <div class="listing-main">
+            <div class="listing-detail-header">
+                <h1>{{ listing.title }}</h1>
+                {% if listing.verification_badge %}
+                <span class="badge badge-verified"><i class="fas fa-check-circle"></i> {{ listing.verification_badge }}</span>
+                {% endif %}
+            </div>
+
+            <div class="listing-price-big">R {{ "%.2f"|format(listing.asking_price or 0) }}</div>
+
+            <div class="listing-info-grid">
+                <div class="info-item">
+                    <span class="label">Category</span>
+                    <span class="value">{{ listing.category|title }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Quantity</span>
+                    <span class="value">{{ listing.quantity or '-' }} {{ listing.unit or '' }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Location</span>
+                    <span class="value">{{ listing.location or 'N/A' }}</span>
+                </div>
+                {% if listing.verified_weight %}
+                <div class="info-item">
+                    <span class="label">Verified Weight</span>
+                    <span class="value">{{ listing.verified_weight }} kg</span>
+                </div>
+                {% endif %}
+                {% if listing.verified_grade %}
+                <div class="info-item">
+                    <span class="label">Grade</span>
+                    <span class="value">{{ listing.verified_grade }}</span>
+                </div>
+                {% endif %}
+                <div class="info-item">
+                    <span class="label">Listed</span>
+                    <span class="value">{{ listing.created_at.strftime('%d %b %Y') }}</span>
+                </div>
+            </div>
+
+            {% if listing.description %}
+            <div class="listing-description">
+                <h3>Description</h3>
+                <p>{{ listing.description }}</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="listing-sidebar">
+            <div class="seller-card">
+                <h3><i class="fas fa-user"></i> Seller</h3>
+                <p><strong>{{ listing.seller.full_name }}</strong></p>
+                <p>{{ listing.seller.location or 'South Africa' }}</p>
+            </div>
+
+            {% if current_user.is_authenticated and current_user.id != listing.seller_id and listing.status == 'active' %}
+            <div class="offer-card">
+                <h3>Make an Offer</h3>
+                <form method="POST" action="{{ url_for('agriculture.make_offer', listing_id=listing.id) }}">
+                    <div class="form-group">
+                        <label for="amount">Amount (ZAR)</label>
+                        <input type="number" id="amount" name="amount" required step="0.01" placeholder="Your offer">
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Message (optional)</label>
+                        <textarea id="message" name="message" rows="3" placeholder="Add a message..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-paper-plane"></i> Submit Offer
+                    </button>
+                </form>
+            </div>
+            {% elif not current_user.is_authenticated %}
+            <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-block">
+                <i class="fas fa-sign-in-alt"></i> Sign in to Make Offer
+            </a>
+            {% endif %}
+
+            {% if offers %}
+            <div class="offers-section">
+                <h3>Offers ({{ offers|length }})</h3>
+                {% for offer in offers %}
+                <div class="offer-item">
+                    <div class="offer-info">
+                        <strong>R {{ "%.2f"|format(offer.amount) }}</strong>
+                        <span class="badge badge-{{ 'warning' if offer.status == 'pending' else ('success' if offer.status == 'accepted' else 'danger') }}">{{ offer.status|title }}</span>
+                    </div>
+                    <p>{{ offer.buyer.full_name }}</p>
+                    {% if offer.message %}<p class="offer-message">{{ offer.message }}</p>{% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

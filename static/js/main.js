@@ -13,6 +13,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Animate score bars on scroll
     animateScoreBars();
+
+    // Register service worker for PWA
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/static/js/sw.js').catch(() => {});
+    }
 });
 
 function animateScoreBars() {

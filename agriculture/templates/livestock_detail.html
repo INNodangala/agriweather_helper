@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}{{ animal.species|title }} - AgriWeather Helper{% endblock %}
+
+{% block content %}
+<div class="agri-page">
+    <a href="{{ url_for('agriculture.farm_detail', farm_id=animal.farm_id) }}" class="back-link">
+        <i class="fas fa-arrow-left"></i> Back to Farm
+    </a>
+
+    <div class="detail-header">
+        <h1><i class="fas fa-cow"></i> {{ animal.species|title }}{% if animal.breed %} - {{ animal.breed }}{% endif %}</h1>
+        <span class="badge badge-{{ 'info' if animal.verification_status == 'ai_estimated' else 'secondary' }}">
+            {{ animal.verification_status|title }}
+        </span>
+    </div>
+
+    <div class="detail-grid">
+        <div class="detail-card">
+            <h3><i class="fas fa-info-circle"></i> Basic Info</h3>
+            <div class="detail-rows">
+                <div class="detail-row">
+                    <span class="label">Species</span>
+                    <span class="value">{{ animal.species|title }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Breed</span>
+                    <span class="value">{{ animal.breed or 'Unknown' }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Sex</span>
+                    <span class="value">{{ animal.sex or 'Unknown' }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Age</span>
+                    <span class="value">{{ animal.age or '-' }} {{ animal.age_unit }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Health</span>
+                    <span class="value badge badge-{{ 'success' if animal.health_status == 'healthy' else 'warning' }}">{{ animal.health_status|title }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="detail-card">
+            <h3><i class="fas fa-weight-hanging"></i> Weight & Valuation</h3>
+            <div class="detail-rows">
+                <div class="detail-row">
+                    <span class="label">Estimated Weight</span>
+                    <span class="value weight-display">{{ animal.estimated_weight_kg or '-' }} kg</span>
+                </div>
+                {% if animal.weight_margin_kg %}
+                <div class="detail-row">
+                    <span class="label">Error Margin</span>
+                    <span class="value">&plusmn; {{ animal.weight_margin_kg }} kg</span>
+                </div>
+                {% endif %}
+                {% if animal.weight_confidence %}
+                <div class="detail-row">
+                    <span class="label">Confidence</span>
+                    <span class="value">{{ "%.0f"|format(animal.weight_confidence * 100) }}%</span>
+                </div>
+                {% endif %}
+                <div class="detail-row">
+                    <span class="label">Valuation</span>
+                    <span class="value">R {{ "%.2f"|format(animal.valuation_amount or 0) }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-actions">
+        <a href="{{ url_for('agriculture.scan_page') }}" class="btn btn-success">
+            <i class="fas fa-camera"></i> AI Weight Scan
+        </a>
+    </div>
+</div>
+{% endblock %}

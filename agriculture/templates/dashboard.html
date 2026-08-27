@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Farm Dashboard - AgriWeather Helper{% endblock %}
+
+{% block content %}
+<div class="agri-dashboard">
+    <div class="dash-header">
+        <div>
+            <h1><i class="fas fa-tractor"></i> Farm Dashboard</h1>
+            <p>Welcome, {{ current_user.full_name }}</p>
+        </div>
+        <div class="dash-actions">
+            <a href="{{ url_for('agriculture.farm_new') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> New Farm
+            </a>
+            <a href="{{ url_for('agriculture.scan_page') }}" class="btn btn-success">
+                <i class="fas fa-camera"></i> AI Scan
+            </a>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card stat-farms">
+            <i class="fas fa-warehouse"></i>
+            <div class="stat-info">
+                <span class="stat-value">{{ farms|length }}</span>
+                <span class="stat-label">Farms</span>
+            </div>
+        </div>
+        <div class="stat-card stat-livestock">
+            <i class="fas fa-cow"></i>
+            <div class="stat-info">
+                <span class="stat-value">{{ total_livestock }}</span>
+                <span class="stat-label">Livestock</span>
+            </div>
+        </div>
+        <div class="stat-card stat-crops">
+            <i class="fas fa-seedling"></i>
+            <div class="stat-info">
+                <span class="stat-value">{{ total_crop_area }}</span>
+                <span class="stat-label">Hectares</span>
+            </div>
+        </div>
+        <div class="stat-card stat-market">
+            <i class="fas fa-store"></i>
+            <div class="stat-info">
+                <span class="stat-value">{{ active_listings }}</span>
+                <span class="stat-label">Listings</span>
+            </div>
+        </div>
+        <div class="stat-card stat-offers">
+            <i class="fas fa-handshake"></i>
+            <div class="stat-info">
+                <span class="stat-value">{{ pending_offers }}</span>
+                <span class="stat-label">Pending Offers</span>
+            </div>
+        </div>
+        <div class="stat-card stat-biomass">
+            <i class="fas fa-weight-hanging"></i>
+            <div class="stat-info">
+                <span class="stat-value">{{ total_biomass_kg }}</span>
+                <span class="stat-label">Total Biomass (kg)</span>
+            </div>
+        </div>
+    </div>
+
+    {% if farms %}
+    <section class="dash-section">
+        <h2><i class="fas fa-warehouse"></i> Your Farms</h2>
+        <div class="farm-cards">
+            {% for farm in farms %}
+            <a href="{{ url_for('agriculture.farm_detail', farm_id=farm.id) }}" class="farm-card">
+                <div class="farm-card-header">
+                    <h3>{{ farm.name }}</h3>
+                    <span class="farm-size">{{ farm.farm_size or '?' }} {{ farm.farm_size_unit }}</span>
+                </div>
+                <p class="farm-location"><i class="fas fa-map-marker-alt"></i> {{ farm.location or 'No location set' }}</p>
+                <p class="farm-soil"><i class="fas fa-mountain"></i> {{ farm.soil_type or 'Unknown soil' }}</p>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% else %}
+    <section class="dash-empty">
+        <i class="fas fa-tractor"></i>
+        <h3>No farms yet</h3>
+        <p>Create your first farm to start managing your agricultural assets.</p>
+        <a href="{{ url_for('agriculture.farm_new') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Create Farm
+        </a>
+    </section>
+    {% endif %}
+
+    {% if recent_scans %}
+    <section class="dash-section">
+        <h2><i class="fas fa-history"></i> Recent Scans</h2>
+        <div class="scan-list">
+            {% for scan in recent_scans %}
+            <div class="scan-item">
+                <div class="scan-type">
+                    {% if scan.scan_type == 'LIVESTOCK_WEIGHT' %}
+                    <i class="fas fa-cow"></i> Livestock Weight
+                    {% elif scan.scan_type == 'CROP_DISEASE' %}
+                    <i class="fas fa-leaf"></i> Crop Disease
+                    {% else %}
+                    <i class="fas fa-seedling"></i> Crop Health
+                    {% endif %}
+                </div>
+                <div class="scan-meta">
+                    <span class="scan-confidence">{{ "%.0f"|format((scan.confidence or 0) * 100) }}% confidence</span>
+                    <span class="scan-time">{{ scan.created_at.strftime('%d %b %Y') }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}

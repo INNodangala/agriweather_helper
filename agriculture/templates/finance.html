@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Finance - AgriWeather Helper{% endblock %}
+
+{% block content %}
+<div class="agri-page">
+    <a href="{{ url_for('agriculture.dashboard') }}" class="back-link">
+        <i class="fas fa-arrow-left"></i> Dashboard
+    </a>
+
+    <h1><i class="fas fa-chart-line"></i> Farm Finance</h1>
+
+    <div class="finance-grid">
+        <div class="finance-card credit-card">
+            <h2><i class="fas fa-credit-card"></i> Credit Score</h2>
+            <div class="credit-score-display">
+                <div class="score-circle score-{{ credit.band|lower }}">
+                    <span class="score-number">{{ credit.score }}</span>
+                    <span class="score-band">{{ credit.band }}</span>
+                </div>
+            </div>
+            <div class="credit-factors">
+                {% for factor in credit.factors %}
+                <div class="factor">
+                    <div class="factor-header">
+                        <span class="factor-name">{{ factor.name }}</span>
+                        <span class="factor-score">+{{ factor.contribution }}</span>
+                    </div>
+                    <p class="factor-explanation">{{ factor.explanation }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            <p class="credit-disclaimer"><i class="fas fa-info-circle"></i> {{ credit.disclaimer }}</p>
+        </div>
+
+        <div class="finance-card valuation-card">
+            <h2><i class="fas fa-coins"></i> Farm Valuation</h2>
+            <div class="valuation-display">
+                <span class="valuation-amount">R {{ "%.2f"|format(total_valuation) }}</span>
+                <span class="valuation-label">Estimated Total Asset Value</span>
+            </div>
+
+            <div class="financing-range">
+                <h3>Eligible Financing Range</h3>
+                <div class="range-display">
+                    <span class="range-min">R {{ "{:,.0f}".format(eligible_range.min) }}</span>
+                    <span class="range-separator">to</span>
+                    <span class="range-max">R {{ "{:,.0f}".format(eligible_range.max) }}</span>
+                </div>
+                <p class="range-note">Based on your credit score and farm assets</p>
+            </div>
+
+            <div class="marketplace-stats">
+                <h3>Marketplace Activity</h3>
+                <div class="stat-row">
+                    <span>Completed Sales</span>
+                    <strong>{{ listings_sold }}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="finance-disclaimer">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p>All valuations and scores are AI-assisted estimates for guidance only.
+        They do not constitute professional financial advice, guaranteed lending decisions,
+        or certified asset valuations.</p>
+    </div>
+</div>
+{% endblock %}

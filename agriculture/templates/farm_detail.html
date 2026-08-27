@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}{{ farm.name }} - AgriWeather Helper{% endblock %}
+
+{% block content %}
+<div class="agri-page">
+    <a href="{{ url_for('agriculture.farms_list') }}" class="back-link">
+        <i class="fas fa-arrow-left"></i> Back to Farms
+    </a>
+
+    <div class="farm-header">
+        <div>
+            <h1><i class="fas fa-warehouse"></i> {{ farm.name }}</h1>
+            <p><i class="fas fa-map-marker-alt"></i> {{ farm.location or 'No location' }} &middot; {{ farm.farm_size or '?' }} {{ farm.farm_size_unit }} &middot; {{ farm.soil_type or 'Unknown soil' }}</p>
+        </div>
+        <a href="{{ url_for('agriculture.farm_edit', farm_id=farm.id) }}" class="btn btn-outline">
+            <i class="fas fa-edit"></i> Edit
+        </a>
+    </div>
+
+    <div class="stats-grid stats-compact">
+        <div class="stat-card stat-livestock">
+            <i class="fas fa-cow"></i>
+            <div class="stat-info">
+                <span class="stat-value">{{ livestock|length }}</span>
+                <span class="stat-label">Livestock</span>
+            </div>
+        </div>
+        <div class="stat-card stat-crops">
+            <i class="fas fa-seedling"></i>
+            <div class="stat-info">
+                <span class="stat-value">{{ crops|length }}</span>
+                <span class="stat-label">Crops</span>
+            </div>
+        </div>
+        <div class="stat-card stat-biomass">
+            <i class="fas fa-weight-hanging"></i>
+            <div class="stat-info">
+                <span class="stat-value">{{ total_biomass }}</span>
+                <span class="stat-label">Total Biomass (kg)</span>
+            </div>
+        </div>
+    </div>
+
+    <section class="dash-section">
+        <div class="section-header">
+            <h2><i class="fas fa-cow"></i> Livestock</h2>
+            <a href="{{ url_for('agriculture.livestock_new', farm_id=farm.id) }}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus"></i> Add
+            </a>
+        </div>
+        {% if livestock %}
+        <div class="asset-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Species</th>
+                        <th>Breed</th>
+                        <th>Sex</th>
+                        <th>Age</th>
+                        <th>Weight (kg)</th>
+                        <th>Health</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for animal in livestock %}
+                    <tr>
+                        <td><strong>{{ animal.species|title }}</strong></td>
+                        <td>{{ animal.breed or '-' }}</td>
+                        <td>{{ animal.sex or '-' }}</td>
+                        <td>{{ animal.age or '-' }} {{ animal.age_unit }}</td>
+                        <td>{{ animal.estimated_weight_kg or '-' }}</td>
+                        <td>
+                            <span class="badge badge-{{ 'success' if animal.health_status == 'healthy' else 'warning' }}">
+                                {{ animal.health_status|title }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge badge-{{ 'info' if animal.verification_status == 'ai_estimated' else 'secondary' }}">
+                                {{ animal.verification_status|title }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('agriculture.livestock_detail', animal_id=animal.id) }}" class="btn btn-sm btn-outline">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-section">
+            <p>No livestock registered yet.</p>
+            <a href="{{ url_for('agriculture.livestock_new', farm_id=farm.id) }}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus"></i> Add Livestock
+            </a>
+        </div>
+        {% endif %}
+    </section>
+
+    <section class="dash-section">
+        <div class="section-header">
+            <h2><i class="fas fa-seedling"></i> Crops</h2>
+            <a href="{{ url_for('agriculture.crop_new', farm_id=farm.id) }}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus"></i> Add
+            </a>
+        </div>
+        {% if crops %}
+        <div class="asset-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Crop</th>
+                        <th>Variety</th>
+                        <th>Area</th>
+                        <th>Health</th>
+                        <th>Disease</th>
+                        <th>Planted</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for crop in crops %}
+                    <tr>
+                        <td><strong>{{ crop.crop_type }}</strong></td>
+                        <td>{{ crop.variety or '-' }}</td>
+                        <td>{{ crop.area or '-' }} {{ crop.area_unit }}</td>
+                        <td>
+                            <span class="badge badge-{{ 'success' if crop.health_status == 'healthy' else 'warning' }}">
+                                {{ crop.health_status|title }}
+                            </span>
+                        </td>
+                        <td>{{ crop.disease_status or '-' }}</td>
+                        <td>{{ crop.planting_date.strftime('%d %b %Y') if crop.planting_date else '-' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-section">
+            <p>No crops registered yet.</p>
+            <a href="{{ url_for('agriculture.crop_new', farm_id=farm.id) }}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus"></i> Add Crop
+            </a>
+        </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

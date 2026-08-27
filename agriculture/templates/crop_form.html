@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Add Crop - {{ farm.name }}{% endblock %}
+
+{% block content %}
+<div class="agri-page">
+    <a href="{{ url_for('agriculture.farm_detail', farm_id=farm.id) }}" class="back-link">
+        <i class="fas fa-arrow-left"></i> Back to {{ farm.name }}
+    </a>
+
+    <div class="form-card">
+        <h1><i class="fas fa-seedling"></i> Add Crop</h1>
+
+        <form method="POST" class="agri-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="crop_type">Crop Type *</label>
+                    <input type="text" id="crop_type" name="crop_type" required placeholder="e.g. Maize, Tomatoes">
+                </div>
+                <div class="form-group">
+                    <label for="variety">Variety</label>
+                    <input type="text" id="variety" name="variety" placeholder="e.g. SC 403">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="area">Area</label>
+                    <input type="number" id="area" name="area" step="0.1" placeholder="e.g. 5">
+                </div>
+                <div class="form-group">
+                    <label for="area_unit">Unit</label>
+                    <select id="area_unit" name="area_unit">
+                        <option value="hectares">Hectares</option>
+                        <option value="acres">Acres</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="planting_date">Planting Date</label>
+                    <input type="date" id="planting_date" name="planting_date">
+                </div>
+                <div class="form-group">
+                    <label for="expected_harvest_date">Expected Harvest Date</label>
+                    <input type="date" id="expected_harvest_date" name="expected_harvest_date">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="health_status">Health Status</label>
+                <select id="health_status" name="health_status">
+                    <option value="healthy">Healthy</option>
+                    <option value="fair">Fair</option>
+                    <option value="poor">Poor</option>
+                    <option value="diseased">Diseased</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add Crop
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

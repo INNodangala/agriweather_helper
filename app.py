@@ -2,12 +2,17 @@
 AgriWeather Helper - Flask Application
 
 A farming assistant app providing weather forecasts, crop advice,
-planting schedules, and irrigation guidance for South African farmers.
+planting schedules, irrigation guidance, and AI-powered agriculture platform.
 """
 
 import os
 from flask import Flask, render_template, request, jsonify
+from flask_login import LoginManager
 from datetime import datetime
+
+from models import db, User
+from auth import auth_bp
+from agriculture import agriculture_bp
 
 from weather import (
     get_current_weather, get_forecast, get_weather_alerts,
@@ -28,6 +33,36 @@ from irrigation import (
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'agriweather-helper-dev-key')
 
+# Database configuration
+basedir = os.path.abspath(os.path.dirname(__file__))
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
+    'DATABASE_URL', f'sqlite:///{os.path.join(basedir, "agriweather.db")}'
+)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db.init_app(app)
+
+# Login manager
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'auth.login'
+login_manager.login_message_category = 'info'
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+
+# Register blueprints
+app.register_blueprint(auth_bp)
+app.register_blueprint(agriculture_bp)
+
+
+# Create tables
+with app.app_context():
+    db.create_all()
+
 
 @app.route('/')
 def index():
@@ -39,12 +74,12 @@ def index():
 def weather():
     """Get weather for a city."""
     city = request.form.get('city', 'Cape Town')
-    
+
     weather_data = get_current_weather(city)
     forecast_data = get_forecast(city)
     alerts = get_weather_alerts(weather_data)
     irrigation_rec = get_irrigation_recommendation(weather_data, forecast_data)
-    
+
     return render_template('weather.html',
                           city=city,
                           weather=weather_data,
@@ -74,7 +109,7 @@ def crops():
     all_crops = get_all_crops()
     seasonal = get_seasonal_crops()
     current_month = get_current_month()
-    
+
     return render_template('crops.html',
                           crops=all_crops,
                           seasonal=seasonal,
@@ -87,9 +122,9 @@ def crop_detail(crop_name):
     crop = get_crop_info(crop_name)
     if not crop:
         return render_template('404.html'), 404
-    
+
     water_info = get_water_needs_info(crop['water_needs'])
-    
+
     return render_template('crop_detail.html',
                           crop_name=crop_name,
                           crop=crop,
@@ -101,7 +136,7 @@ def planting():
     """Planting calendar page."""
     calendar = get_planting_calendar()
     seasonal = get_seasonal_crops()
-    
+
     return render_template('planting.html',
                           calendar=calendar,
                           seasonal=seasonal)
@@ -113,7 +148,7 @@ def irrigation():
     methods = compare_irrigation_methods()
     soil_types = SOIL_TYPES
     drought_tips = get_drought_tips()
-    
+
     return render_template('irrigation.html',
                           methods=methods,
                           soil_types=soil_types,
@@ -127,12 +162,12 @@ def irrigation_calculator():
     area = request.form.get('area', 1.0, type=float)
     soil_type = request.form.get('soil_type', 'loam')
     method = request.form.get('method', 'drip')
-    
+
     water_need = calculate_water_need(crop_name, area)
     schedule = get_irrigation_schedule(crop_name, soil_type)
     cost = calculate_irrigation_cost(water_need['total_daily_liters'], method)
     soil_guide = get_soil_moisture_guidelines(soil_type)
-    
+
     return render_template('irrigation_calculator.html',
                           water_need=water_need,
                           schedule=schedule,
@@ -151,12 +186,12 @@ def irrigation_calculator():
 def recommendations():
     """Weather-based crop recommendations."""
     city = request.args.get('city', 'Cape Town')
-    
+
     weather_data = get_current_weather(city)
     temperature = weather_data.get('temperature', 22)
-    
+
     recommendations = get_crop_recommendations(temperature)
-    
+
     return render_template('recommendations.html',
                           city=city,
                           weather=weather_data,
